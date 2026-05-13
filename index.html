@@ -287,15 +287,15 @@
                     </div>
                     <div class="settings-section" id="customEndpointSection" style="display:none">
                         <label class="section-label">自定义 API 端点</label>
-                        <input type="text" id="customEndpoint" class="text-input" placeholder="https://api.example.com/v1/images/generations">
+                        <input type="text" id="customEndpoint" class="text-input" placeholder="http://localhost:8787/v1/images/generations">
                     </div>
                     <div class="settings-section" id="customHeadersSection" style="display:none">
                         <label class="section-label">自定义请求头 (JSON)</label>
-                        <textarea id="customHeaders" class="text-input" rows="3" placeholder='{"Authorization": "Bearer YOUR_KEY"}'></textarea>
+                        <textarea id="customHeaders" class="text-input" rows="3" placeholder='{"Authorization":"Bearer 你的key"}'></textarea>
                     </div>
                     <div class="settings-section" id="customBodySection" style="display:none">
                         <label class="section-label">请求体模板 (JSON)</label>
-                        <textarea id="customBodyTemplate" class="text-input" rows="5" placeholder='使用变量: {{prompt}}, {{negative_prompt}}, {{width}}, {{height}}, {{steps}}, {{cfg_scale}}, {{seed}}, {{model}}&#10;&#10;示例:&#10;{"prompt": "{{prompt}}", "width": {{width}}, "height": {{height}}}'></textarea>
+                        <textarea id="customBodyTemplate" class="text-input" rows="5" placeholder='{"model":"gpt-image-2","prompt":"{{prompt}}","size":"1024x1024"}'></textarea>
                         <div class="help-text">响应中的图片将自动从 JSON 中提取 (支持 base64 和 URL)</div>
                     </div>
                     <div class="settings-actions">
