@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 画图工坊 - AI Image Generator</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎨</text></svg>">
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span class="logo-icon">🎨</span>
+                    <span class="logo-text">AI 画图工坊</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-icon" id="historyBtn" title="历史记录">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </button>
+                <button class="btn btn-icon" id="settingsBtn" title="API 设置">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-container">
+            <!-- Left Sidebar - Parameters -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-section">
+                    <label class="section-label">模型选择</label>
+                    <select id="modelSelect" class="select-input">
+                        <optgroup label="Stable Diffusion">
+                            <option value="stable-diffusion-xl-1024-v1-0">SDXL 1.0</option>
+                            <option value="sd3-large">SD3 Large</option>
+                            <option value="sd3-medium">SD3 Medium</option>
+                            <option value="sd3.5-large">SD3.5 Large</option>
+                            <option value="sd3.5-large-turbo">SD3.5 Large Turbo</option>
+                        </optgroup>
+                        <optgroup label="FLUX">
+                            <option value="flux-1.1-pro" selected>FLUX 1.1 Pro</option>
+                            <option value="flux-1-pro">FLUX 1 Pro</option>
+                            <option value="flux-1-dev">FLUX 1 Dev</option>
+                            <option value="flux-1-schnell">FLUX 1 Schnell</option>
+                        </optgroup>
+                        <optgroup label="DALL-E">
+                            <option value="dall-e-3">DALL-E 3</option>
+                            <option value="dall-e-2">DALL-E 2</option>
+                        </optgroup>
+                        <optgroup label="自定义">
+                            <option value="gpt-image-2">GPT-Image-2（固定）</option>
+                            <option value="custom">自定义模型</option>
+                        </optgroup>
+                    </select>
+                    <input type="text" id="customModelName" class="text-input hidden" placeholder="输入自定义模型名称">
+                </div>
+
+                <div class="sidebar-section">
+                    <label class="section-label">画面比例 <span class="value-display" id="ratioDisplay">1:1</span></label>
+                    <div class="ratio-grid" id="ratioGrid">
+                        <button class="ratio-btn active" data-ratio="1:1" data-w="1" data-h="1">
+                            <div class="ratio-preview square"></div>
+                            <span>方形</span>
+                            <small>1:1</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="5:4" data-w="5" data-h="4">
+                            <div class="ratio-preview r54"></div>
+                            <span>横屏</span>
+                            <small>5:4</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="9:16" data-w="9" data-h="16">
+                            <div class="ratio-preview tall"></div>
+                            <span>故事</span>
+                            <small>9:16</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="21:9" data-w="21" data-h="9">
+                            <div class="ratio-preview ultrawide"></div>
+                            <span>超宽屏</span>
+                            <small>21:9</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="16:9" data-w="16" data-h="9">
+                            <div class="ratio-preview wide"></div>
+                            <span>宽屏</span>
+                            <small>16:9</small>
+                        </button>
+
+                        <button class="ratio-btn" data-ratio="4:3" data-w="4" data-h="3">
+                            <div class="ratio-preview landscape"></div>
+                            <span>横屏</span>
+                            <small>4:3</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="3:2" data-w="3" data-h="2">
+                            <div class="ratio-preview r32"></div>
+                            <span>宽幅</span>
+                            <small>3:2</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="4:5" data-w="4" data-h="5">
+                            <div class="ratio-preview r45"></div>
+                            <span>标准</span>
+                            <small>4:5</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="3:4" data-w="3" data-h="4">
+                            <div class="ratio-preview portrait"></div>
+                            <span>竖版</span>
+                            <small>3:4</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="2:3" data-w="2" data-h="3">
+                            <div class="ratio-preview r23"></div>
+                            <span>竖版</span>
+                            <small>2:3</small>
+                        </button>
+
+                        <button class="ratio-btn" data-ratio="420:297" data-w="420" data-h="297">
+                            <div class="ratio-preview a3h"></div>
+                            <span>A3横版</span>
+                            <small>420:297</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="297:420" data-w="297" data-h="420">
+                            <div class="ratio-preview a3v"></div>
+                            <span>A3竖版</span>
+                            <small>297:420</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="297:210" data-w="297" data-h="210">
+                            <div class="ratio-preview a4h"></div>
+                            <span>A4横版</span>
+                            <small>297:210</small>
+                        </button>
+                        <button class="ratio-btn" data-ratio="210:297" data-w="210" data-h="297">
+                            <div class="ratio-preview a4v"></div>
+                            <span>A4竖版</span>
+                            <small>210:297</small>
+                        </button>
+                    </div>
+                    <div class="size-display"><span id="sizeDisplay">1024 × 1024</span></div>
+                </div>
+
+                <div class="sidebar-section">
+                    <label class="section-label">输出尺寸</label>
+                    <div class="option-tabs" id="outputSizeTabs">
+                        <button class="tab-btn active" data-size-token="1k" data-multiplier="1">原图 (1K)</button>
+                        <button class="tab-btn" data-size-token="2k" data-multiplier="2">2K 高清</button>
+                        <button class="tab-btn" data-size-token="4k" data-multiplier="4">4K 超清</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <label class="section-label">图片质量</label>
+                    <div class="option-tabs" id="qualityTabs">
+                        <button class="tab-btn active" data-quality="auto">自动</button>
+                        <button class="tab-btn" data-quality="low">低 (Low)</button>
+                        <button class="tab-btn" data-quality="medium">中 (Medium)</button>
+                        <button class="tab-btn" data-quality="high">高 (High)</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <label class="section-label">
+                        生成数量
+                        <span class="value-display" id="batchValue">1</span>
+                    </label>
+                    <input type="range" id="batchSize" class="range-input" min="1" max="4" value="1" step="1">
+                </div>
+
+                <div class="sidebar-section" id="stepsSection">
+                    <label class="section-label">
+                        采样步数
+                        <span class="value-display" id="stepsValue">30</span>
+                    </label>
+                    <input type="range" id="steps" class="range-input" min="1" max="50" value="30" step="1">
+                </div>
+
+                <div class="sidebar-section" id="cfgSection">
+                    <label class="section-label">
+                        CFG Scale
+                        <span class="value-display" id="cfgValue">7</span>
+                    </label>
+                    <input type="range" id="cfgScale" class="range-input" min="1" max="20" value="7" step="0.5">
+                </div>
+
+                <div class="sidebar-section">
+                    <label class="section-label">种子 (Seed)</label>
+                    <div class="seed-row">
+                        <input type="number" id="seed" class="text-input" placeholder="随机 (-1)" value="-1">
+                        <button class="btn btn-small" id="randomSeed" title="随机种子">🎲</button>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <label class="section-label">风格预设</label>
+                    <div class="style-tags" id="styleTags">
+                        <button class="style-tag active" data-style="">无</button>
+                        <button class="style-tag" data-style="photographic">摄影</button>
+                        <button class="style-tag" data-style="digital-art">数字艺术</button>
+                        <button class="style-tag" data-style="anime">动漫</button>
+                        <button class="style-tag" data-style="cinematic">电影感</button>
+                        <button class="style-tag" data-style="3d-model">3D</button>
+                        <button class="style-tag" data-style="pixel-art">像素风</button>
+                        <button class="style-tag" data-style="watercolor">水彩</button>
+                        <button class="style-tag" data-style="oil-painting">油画</button>
+                        <button class="style-tag" data-style="line-art">线稿</button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center - Prompt & Gallery -->
+            <main class="content">
+                <!-- Prompt Area -->
+                <div class="prompt-area">
+                    <div class="prompt-box">
+                        <div class="prompt-header">
+                            <span class="prompt-label">✨ 描述你想要的图片</span>
+                            <button class="btn btn-small btn-ghost" id="translateBtn" title="翻译为英文">🌐 翻译</button>
+                        </div>
+                        <textarea id="promptInput" class="prompt-input" placeholder="在这里输入你的创意描述...&#10;例如：一只穿着宇航服的猫咪，漂浮在太空中，背景是壮观的星云，超现实主义风格，8K高清" rows="4"></textarea>
+                    </div>
+                    <div class="prompt-box negative">
+                        <div class="prompt-header">
+                            <span class="prompt-label">🚫 负面提示词</span>
+                            <button class="btn btn-small btn-ghost" id="toggleNegative">展开</button>
+                        </div>
+                        <textarea id="negativePrompt" class="prompt-input collapsed" placeholder="不想在图片中出现的元素...&#10;例如：模糊, 变形, 低质量, 文字, 水印" rows="2"></textarea>
+                    </div>
+                    <div class="prompt-actions">
+                        <div class="prompt-actions-left">
+                            <button class="btn btn-small btn-ghost" id="clearPrompt">清空</button>
+                            <button class="btn btn-small btn-ghost" id="randomPrompt">🎲 随机灵感</button>
+                        </div>
+                        <button class="btn btn-primary btn-generate" id="generateBtn">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                            <span>生成图片</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Gallery Area -->
+                <div class="gallery-area" id="galleryArea">
+                    <div class="gallery-empty" id="galleryEmpty">
+                        <div class="empty-icon">🎨</div>
+                        <h3>开始你的AI创作之旅</h3>
+                        <p>输入描述，点击生成，让AI为你创造精美的图片</p>
+                        <div class="quick-prompts">
+                            <span class="quick-prompt" data-prompt="A majestic dragon flying over a misty mountain landscape, golden hour lighting, fantasy art, highly detailed">🐉 飞龙山景</span>
+                            <span class="quick-prompt" data-prompt="A cozy coffee shop interior in rainy day, warm lighting, anime style, studio ghibli inspired">☕ 雨天咖啡店</span>
+                            <span class="quick-prompt" data-prompt="An astronaut floating in deep space surrounded by colorful nebulas and distant galaxies, cinematic, 8K">🚀 太空漫步</span>
+                            <span class="quick-prompt" data-prompt="A cyberpunk city street at night with neon signs, rain reflections, blade runner style, ultra detailed">🌃 赛博都市</span>
+                            <span class="quick-prompt" data-prompt="Beautiful Japanese garden with cherry blossoms, koi pond, traditional architecture, serene atmosphere, watercolor painting">🌸 日式庭院</span>
+                            <span class="quick-prompt" data-prompt="A fantasy underwater kingdom with bioluminescent creatures, crystal palace, magical atmosphere, concept art">🏰 海底王国</span>
+                        </div>
+                    </div>
+                    <div class="gallery-grid" id="galleryGrid"></div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal-overlay" id="settingsModal">
+            <div class="modal">
+                <div class="modal-header">
+                    <h2>⚙️ API 设置</h2>
+                    <button class="btn btn-icon modal-close" id="closeSettings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-section">
+                        <label class="section-label">API 提供商</label>
+                        <select id="apiProvider" class="select-input">
+                            <option value="stability">Stability AI (Stable Diffusion / FLUX)</option>
+                            <option value="openai">OpenAI (DALL-E)</option>
+                            <option value="replicate">Replicate</option>
+                            <option value="custom">自定义 API</option>
+                        </select>
+                    </div>
+                    <div class="settings-section">
+                        <label class="section-label">API Key</label>
+                        <div class="api-key-row">
+                            <input type="password" id="apiKey" class="text-input" placeholder="输入你的 API Key">
+                            <button class="btn btn-small" id="toggleApiKey">👁️</button>
+                        </div>
+                        <div class="help-text" id="apiHelp">
+                            前往 <a href="https://platform.stability.ai/account/keys" target="_blank">Stability AI</a> 获取 API Key
+                        </div>
+                    </div>
+                    <div class="settings-section" id="customEndpointSection" style="display:none">
+                        <label class="section-label">自定义 API 端点</label>
+                        <input type="text" id="customEndpoint" class="text-input" placeholder="https://api.example.com/v1/images/generations">
+                    </div>
+                    <div class="settings-section" id="customHeadersSection" style="display:none">
+                        <label class="section-label">自定义请求头 (JSON)</label>
+                        <textarea id="customHeaders" class="text-input" rows="3" placeholder='{"Authorization": "Bearer YOUR_KEY"}'></textarea>
+                    </div>
+                    <div class="settings-section" id="customBodySection" style="display:none">
+                        <label class="section-label">请求体模板 (JSON)</label>
+                        <textarea id="customBodyTemplate" class="text-input" rows="5" placeholder='使用变量: {{prompt}}, {{negative_prompt}}, {{width}}, {{height}}, {{steps}}, {{cfg_scale}}, {{seed}}, {{model}}&#10;&#10;示例:&#10;{"prompt": "{{prompt}}", "width": {{width}}, "height": {{height}}}'></textarea>
+                        <div class="help-text">响应中的图片将自动从 JSON 中提取 (支持 base64 和 URL)</div>
+                    </div>
+                    <div class="settings-actions">
+                        <button class="btn btn-ghost" id="testApi">🔍 测试连接</button>
+                        <button class="btn btn-primary" id="saveSettings">💾 保存设置</button>
+                    </div>
+                    <div class="test-result" id="testResult"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Modal -->
+        <div class="modal-overlay" id="historyModal">
+            <div class="modal modal-large">
+                <div class="modal-header">
+                    <h2>📜 历史记录</h2>
+                    <div class="modal-header-actions">
+                        <button class="btn btn-small btn-ghost" id="clearHistory">🗑️ 清空</button>
+                        <button class="btn btn-icon modal-close" id="closeHistory">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="history-grid" id="historyGrid">
+                        <div class="gallery-empty">
+                            <p>暂无历史记录</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Preview Modal -->
+        <div class="modal-overlay" id="previewModal">
+            <div class="preview-container">
+                <button class="btn btn-icon preview-close" id="closePreview">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+                <img id="previewImage" src="" alt="Preview">
+                <div class="preview-info" id="previewInfo"></div>
+                <div class="preview-actions">
+                    <button class="btn btn-primary" id="downloadImage">⬇️ 下载</button>
+                    <button class="btn btn-ghost" id="reusePrompt">📋 复用提示词</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-content">
+                <div class="loading-spinner"></div>
+                <p class="loading-text" id="loadingText">AI 正在创作中...</p>
+                <p class="loading-sub" id="loadingSub">预计需要 10-30 秒</p>
+                <button class="btn btn-ghost" id="cancelGenerate">取消</button>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
